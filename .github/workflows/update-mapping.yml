@@ -1,10 +1,9 @@
 name: Update File Mapping
 
-# 触发条件：当 Content/0-Hand-Storage 文件夹中发生变化时
 on:
   push:
     paths:
-      - "Content/0-Hand-Storage/**"
+      - "Content/0-Hand-Storage/**"  # 监听 Content/0-Hand-Storage 文件夹中的变化
 
 jobs:
   update-mapping:
@@ -20,10 +19,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.x"
-
-    # 安装依赖（如果需要）
-    - name: Install dependencies
-      run: pip install -r requirements.txt || true
 
     # 运行生成映射表脚本
     - name: Generate Mapping File
@@ -64,8 +59,7 @@ jobs:
         # 输出生成的 JSON 文件
         with open("./file_mapping.json", "w", encoding="utf-8") as json_file:
             json.dump(data, json_file, ensure_ascii=False, indent=2)
-
-        print("映射表已生成并保存为 file_mapping.json")
+            json_file.write("\n")  # 添加换行符
         EOF
 
     # 提交更改到仓库
