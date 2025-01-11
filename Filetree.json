@@ -1,13 +1,13 @@
 {
- "Content":{
-  "0-Hand-Storage":{
-   "Ayase Ran.jpg":"黒崎セシル.jpg?t=1634108406",
-   "綾瀬ティアラ.jpg":"黒崎セシル.jpg?t=1634108406",
+  "Content": {
+    "0-Hand-Storage": {
+      "橘玛丽.jpg": "橘玛丽.jpg?t=1736622109",
+      "222.jpg": "222.jpg?t=1736622109"
+    }
+  },
+  "Information": {
+    "TotalNum": 2,
+    "TotalSize": 229913,
+    "Timestamp": 1736622109.404359
   }
- },
- "Information":{
-  "TotalNum":103456,
-  "TotalSize":9806767965,
-  "Timestamp":1736379373.007319
- }
 }
