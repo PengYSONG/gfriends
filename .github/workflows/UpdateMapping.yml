@@ -3,24 +3,24 @@ name: Update File Mapping
 on:
   push:
     paths:
-      - "Content/0-Hand-Storage/**"  # 监听 Content/0-Hand-Storage 文件夹中的变化
+      - "Content/0-Hand-Storage/**"  # 当此目录下文件增、删、改都会触发
 
 jobs:
   update-mapping:
     runs-on: ubuntu-latest
 
     steps:
-    # 检出代码库
+    # 1. Checkout repository
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # 设置 Python 环境
+    # 2. Setup Python environment
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.x"
 
-    # 运行生成映射表脚本
+    # 3. Generate Mapping File (auto-remove deleted file entries)
     - name: Generate Mapping File
       run: |
         python3 <<EOF
@@ -28,47 +28,50 @@ jobs:
         import time
         import json
 
-        # 文件夹路径
         base_path = "./Content/0-Hand-Storage"
 
-        # 初始化 JSON 数据结构
+        # 初始化结构，每次都重建（确保删除生效）
         data = {
-        "Content": {
-            "0-Hand-Storage": {
-                
-            }
+            "Content": {
+                "0-Hand-Storage": {}
             },
-        "Information": {}
+            "Information": {}
         }
 
-        # 遍历文件夹，读取文件信息
-        files = os.listdir(base_path)
-        for file in files:
-            file_path = os.path.join(base_path, file)
-            if os.path.isfile(file_path):
-                # 获取文件的修改时间戳
-                timestamp = int(os.path.getmtime(file_path))
-                # 添加到映射表，路径后附加 "?t=时间戳"
-                data["Content"]["0-Hand-Storage"][file] = f"{file}?t={timestamp}"
+        # 获取当前文件夹内容（真实源）
+        files = [
+            f for f in os.listdir(base_path)
+            if os.path.isfile(os.path.join(base_path, f))
+        ]
 
-        # 添加全局信息
+        # 填充文件映射
+        for file in files:
+            path = os.path.join(base_path, file)
+            timestamp = int(os.path.getmtime(path))
+            data["Content"]["0-Hand-Storage"][file] = f"{file}?t={timestamp}"
+
+        # 填充统计信息
         data["Information"]["TotalNum"] = len(files)
         data["Information"]["TotalSize"] = sum(
-            os.path.getsize(os.path.join(base_path, file)) for file in files if os.path.isfile(os.path.join(base_path, file))
+            os.path.getsize(os.path.join(base_path, f)) for f in files
         )
-        data["Information"]["Timestamp"] = time.time()
+        data["Information"]["Timestamp"] = int(time.time())
 
-        # 输出生成的 JSON 文件
-        with open("./Filetree.json", "w", encoding="utf-8") as json_file:
-            json.dump(data, json_file, ensure_ascii=False, indent=2)
-            json_file.write("\n")  # 添加换行符
+        # 重新写入 Filetree.json
+        with open("./Filetree.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            f.write("\n")
         EOF
 
-    # 提交更改到仓库
+    # 4. Commit and push changes
     - name: Commit and Push Changes
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         git add Filetree.json
-        git commit -m "Auto-update file mapping"
-        git push
+        if ! git diff --cached --quiet; then
+          git commit -m "Auto-update file mapping"
+          git push
+        else
+          echo "No changes to commit."
+        fi
