@@ -1,0 +1,23 @@
+name: Deploy Filetree to NAS
+
+on:
+  push:
+    paths:
+      - 'Filetree.json' # 仅在修改该文件时触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Copy file via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.NAS_HOST }}        # NAS 的 IP 或域名
+          username: ${{ secrets.NAS_USER }}    # NAS 用户名
+          password: ${{ secrets.NAS_PASSWORD }}# NAS 密码
+          port: 22                             # SSH 端口
+          source: "Filetree.json"
+          target: "/volume1/docker/Plex Media Server/config/Library/Application Support/Plex Media Server/Plug-ins/JAVnfoMoviesImporter.bundle/"
