@@ -18,6 +18,6 @@ jobs:
           host: ${{ secrets.NAS_HOST }}        # NAS 的 IP 或域名
           username: ${{ secrets.NAS_USER }}    # NAS 用户名
           password: ${{ secrets.NAS_PASSWORD }}# NAS 密码
-          port: 22                             # SSH 端口
+          port: 88                             # SSH 端口
           source: "Filetree.json"
           target: "/volume1/docker/Plex Media Server/config/Library/Application Support/Plex Media Server/Plug-ins/JAVnfoMoviesImporter.bundle/"
